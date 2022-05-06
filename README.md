@@ -13,3 +13,8 @@ npx hardhat node
 node scripts/sample-script.js
 npx hardhat help
 ```
+
+Run coverage:
+npx hardhat coverage --testfiles "test/ballotTest.js"
+run tests:
+mocha
