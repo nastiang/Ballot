@@ -6,6 +6,9 @@ const provider = process.env.WEB3_PROVIDER;
 
  const account = process.env.PRIVATE_KEY;
 
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+const ROPSTEN_URL = process.env.ROPSTEN_URL;
+
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -27,8 +30,8 @@ module.exports = {
   networks: {
     hardhat:{},
     ropsten: {
-      url: "https://ropsten.infura.io/v3/aeedeee14fbb4381835dddba25acfa41",
-      accounts: ['0xad864022b73050b6f672a687002d07fae0f94176534577a1bf61bd24fe12b43a'],
+      url: ROPSTEN_URL,
+      accounts: [PRIVATE_KEY],
     }
   }
 };
