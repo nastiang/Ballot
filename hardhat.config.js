@@ -1,5 +1,10 @@
 require("@nomiclabs/hardhat-waffle");
 require('solidity-coverage');
+//require('dotenv').config({ path: require('find-config')('.env') })
+
+const provider = process.env.WEB3_PROVIDER;
+
+ const account = process.env.PRIVATE_KEY;
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html

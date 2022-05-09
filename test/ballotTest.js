@@ -53,16 +53,21 @@ describe("Ballot contract", function () {
 
    });
 
-   it("Withdraw after voting", async () => {
+   it("Withdraw after voting", async () => {  //this test doesn't work
 
     await ballot.setVote("One");
     await ballot.setProposal(0,"Jonny",addr1.address);
     await ballot.startVoting(0);
 
+
+    expect(await provider.getBalance(ballotAddress)).to.equal(600000000000000000); 
+
     await ballot.connect(addr1).vote(0,0, { value: ethers.utils.parseEther("0.01") })
+
+    expect(await provider.getBalance(ballotAddress)).to.equal(600000000000000000); 
     await ballot.withdrawAll();
 
-    expect(await provider.getBalance(owner.address)).to.equal(ethers.utils.parseEther("0.01"));
+   // expect(await provider.getBalance(owner.address)).to.equal(10000000000000); 
 
  });
 

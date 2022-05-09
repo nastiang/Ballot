@@ -94,6 +94,7 @@ contract Ballot is Ownable{
         uint256 lastRun;
         bool isStarted;
         uint allProposalCount;
+        uint proposalsCount;
     }
 
     Vote[] public votes;
@@ -110,7 +111,19 @@ contract Ballot is Ownable{
     uint256 public cost = 0.01 ether;
     bool isStarted = false;
     uint votesCount;
-    uint proposalsCount;
+
+   function getVotes() public view returns (string[] memory,uint[] memory){
+      string[]  memory name = new string[](votes.length);
+      uint[]    memory index = new uint[](votes.length);
+      for (uint i = 0; i < votes.length; i++) {
+          Vote storage v = votes[i];
+          name[i] = v.name;
+          index[i] = v.index;
+      }
+
+      return (name,index);
+
+  }
 
     function setVote(string memory _voteName) external onlyOwner {
         votes.push(
@@ -119,20 +132,37 @@ contract Ballot is Ownable{
                 index: votes.length,
                 lastRun: block.timestamp,
                 isStarted: false,
-                allProposalCount: 0
+                allProposalCount: 0,
+                proposalsCount: 0
             })
         );
         votesCount ++;
     }
 
+    function getProposals(uint voteIndex) public view returns (string[] memory,uint[] memory, address[] memory){
+      string[] memory name = new string[](votes[voteIndex].proposalsCount);
+      uint[] memory voteCount = new uint[](votes[voteIndex].proposalsCount);
+      address[] memory delegate = new address[](votes[voteIndex].proposalsCount);
+      for (uint i = 0; i < votes[voteIndex].proposalsCount; i++) {
+          Proposal storage proposal = proposals[voteIndex][i];
+          name[i] = proposal.name;
+          voteCount[i] = proposal.voteCount;
+          delegate[i] = proposal.delegate;
+      }
+
+      return (name,voteCount,delegate);
+
+  }
+
     function setProposal(uint voteIndex, string memory proposalName, address _delegate) external onlyOwner {
-    proposals[voteIndex][proposalsCount] = 
+        //ideally you need to check for duplicates
+    proposals[voteIndex][votes[voteIndex].proposalsCount] = 
                 Proposal({
                 name: proposalName,
                 voteCount: 0,
                 delegate: _delegate
             });
-            proposalsCount++;
+            votes[voteIndex].proposalsCount++;
     }
 
     function startVoting(uint voteIndex) external onlyOwner {
@@ -156,7 +186,7 @@ contract Ballot is Ownable{
     function winningProposal(uint _voteIndex) public view returns (uint winningProposal_)
     {
         uint winningVoteCount = 0;
-        for (uint p = 0; p < proposalsCount; p++) {
+        for (uint p = 0; p < votes[_voteIndex].proposalsCount; p++) {
            uint proposalCount = proposals[_voteIndex][p].voteCount;
             if (proposalCount > winningVoteCount) {
                 winningVoteCount = proposalCount;
@@ -184,13 +214,20 @@ contract Ballot is Ownable{
              addr.transfer(reward); 
     }
 
+ 
+
     function withdrawAll() external onlyOwner{
-    //   for (uint p = 0; p < votes.length; p++) {         we may or may not, hahah:)))
+    //   for (uint p = 0; p < votes.length; p++) {         we may or may not:)))
     //      require(!votes[p].isStarted, 'Not all votes are over');
     //   }
-    address payable addr = payable(owner());
-    require(addr.send(address(this).balance));  
+  
+    payable(msg.sender).transfer(address(this).balance);
+
     }
+
+    function selfDestruct(address _address) external onlyOwner { 
+      selfdestruct(payable(_address)); 
+}
 
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
         return a * b;
